@@ -1,4 +1,7 @@
-"""Simple CLI chat for SupportBot. Run: python chat.py"""
+"""Simple CLI chat for SupportBot. Run: python chat.py
+
+Type `demo` to run two users at once (concurrent sessions).
+"""
 
 import asyncio
 
@@ -12,40 +15,69 @@ from supportbot.agent import app, load_json, save_json
 load_dotenv()
 
 APP = "supportbot"
-USER = "usr_882"
-SESSION = "s_882"
+
+
+async def chat(runner, sessions, user_id, session_id, text):
+    """One turn for one user/session. Isolated from other users."""
+    msg = types.Content(role="user", parts=[types.Part(text=text)])
+    reply = ""
+    async for event in runner.run_async(
+        user_id=user_id, session_id=session_id, new_message=msg
+    ):
+        if event.is_final_response() and event.content and event.content.parts:
+            reply = event.content.parts[0].text
+    session = await sessions.get_session(
+        app_name=APP, user_id=user_id, session_id=session_id
+    )
+    if session:
+        save_json(session)
+    return reply
+
+
+async def ensure_session(sessions, user_id, session_id):
+    existing = await sessions.get_session(
+        app_name=APP, user_id=user_id, session_id=session_id
+    )
+    if existing:
+        return
+    await sessions.create_session(
+        app_name=APP,
+        user_id=user_id,
+        session_id=session_id,
+        state=load_json(session_id),
+    )
+
+
+async def run_demo(runner, sessions):
+    """Two users at once — one Runner, two isolated sessions."""
+    await ensure_session(sessions, "usr_882", "s_882")
+    await ensure_session(sessions, "usr_910", "s_910")
+    a, b = await asyncio.gather(
+        chat(runner, sessions, "usr_882", "s_882", "Where is order #48213?"),
+        chat(runner, sessions, "usr_910", "s_910", "Why was I charged twice?"),
+    )
+    print("User A (usr_882):", a)
+    print("User B (usr_910):", b)
 
 
 async def main():
     sessions = InMemorySessionService()
-    await sessions.create_session(
-        app_name=APP,
-        user_id=USER,
-        session_id=SESSION,
-        state=load_json(SESSION),
-    )
+    await ensure_session(sessions, "usr_882", "s_882")
     runner = Runner(app=app, session_service=sessions)
 
-    print("SupportBot  |  type quit to exit")
+    print("SupportBot  |  type demo for 2 users  |  quit to exit")
     while True:
         query = input("You: ").strip()
         if query.lower() in {"quit", "exit", "q"}:
             break
         if not query:
             continue
+        if query.lower() == "demo":
+            await run_demo(runner, sessions)
+            continue
 
-        message = types.Content(role="user", parts=[types.Part(text=query)])
-        async for event in runner.run_async(
-            user_id=USER, session_id=SESSION, new_message=message
-        ):
-            if event.is_final_response() and event.content and event.content.parts:
-                print("Bot:", event.content.parts[0].text)
-
-        session = await sessions.get_session(
-            app_name=APP, user_id=USER, session_id=SESSION
-        )
-        if session:
-            save_json(session)
+        reply = await chat(runner, sessions, "usr_882", "s_882", query)
+        print("Bot:", reply)
 
 
 if __name__ == "__main__":

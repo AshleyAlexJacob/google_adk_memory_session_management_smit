@@ -1,9 +1,9 @@
-# Step 5 — JSON for Fast Session Memory
+# Step 6 — Concurrent Sessions
 
-Session state is saved to `sessions/{id}.json`. Restart the chat — scratchpad and state come back. Files older than 24 hours are ignored (TTL).
+One Runner serves many users. Each `user_id` + `session_id` is isolated.
 
 ```bash
 python chat.py
 ```
 
-Try an order question, quit, run again, then ask about the same order.
+Type `demo` to run User A and User B at the same time with `asyncio.gather`.
