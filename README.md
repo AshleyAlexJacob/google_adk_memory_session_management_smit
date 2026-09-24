@@ -1,25 +1,13 @@
-# SMIT Peshawar · Memory & Session Management with Google ADK
+# Step 1 — ADK Session Management
 
-Workshop code for `Agentic AI — Memory & Session Management with Google ADK.pdf`.
-
-We build **SupportBot** one piece at a time. Checkout a branch, run the chat, then move on.
+The Runner keeps conversation history in a Session. Each turn, past events are sent again.
 
 ```bash
-cp .env.example .env   # put your OPENAI_API_KEY in .env
-pip install -r requirements.txt
-git checkout step-01-sessions
 python chat.py
 ```
 
-| Branch | Slide topic |
-| --- | --- |
-| `step-01-sessions` | ADK session management |
-| `step-02-context-window` | Context window (sliding window) |
-| `step-03-scratchpad` | Scratchpad via planner `output_key` |
-| `step-04-summarization` | Events compaction / summarization |
-| `step-05-json-memory` | JSON file session memory |
-| `step-06-concurrent-sessions` | Concurrent sessions |
-| `step-07-state-persistence` | State prefixes + DatabaseSessionService |
-| `complete` | All 7 pieces assembled |
+Try:
 
-Model on every step: `LiteLlm(model="openai/gpt-4o")`.
+- `My order hasn't arrived.`
+- `#48213` — it should remember you are talking about an order
+- `What was my order number again?` — it should recall `#48213`
