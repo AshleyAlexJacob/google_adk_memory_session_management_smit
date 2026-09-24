@@ -7,7 +7,7 @@ from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.genai import types
 
-from supportbot.agent import root_agent
+from supportbot.agent import app
 
 load_dotenv()
 
@@ -19,7 +19,7 @@ async def main():
     await sessions.create_session(
         app_name=APP, user_id="usr_882", session_id="s_882"
     )
-    runner = Runner(agent=root_agent, app_name=APP, session_service=sessions)
+    runner = Runner(app=app, session_service=sessions)
 
     print("SupportBot  |  type quit to exit")
     while True:

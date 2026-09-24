@@ -1,9 +1,9 @@
-# Step 3 — Scratchpad Pattern
+# Step 4 — Summarization Memory
 
-Planner writes a plan to `state["scratchpad"]`. Answerer follows it.
+`EventsCompactionConfig` summarizes older events every 5 turns so long chats stay cheap.
 
 ```bash
 python chat.py
 ```
 
-Try: `My order 48213 hasn't arrived — what should I do?`
+Send 5+ messages about order `#48213`. Older turns get compacted into a summary.
