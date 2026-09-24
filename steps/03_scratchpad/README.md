@@ -1,7 +1,5 @@
 # Step 3 — Scratchpad Pattern
 
-Planner writes a plan to `state["scratchpad"]`. Answerer follows it.
-
 ```bash
 python chat.py
 ```
