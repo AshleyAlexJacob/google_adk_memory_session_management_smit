@@ -1,9 +1,9 @@
-# Step 4 — Summarization Memory
+# Step 5 — JSON for Fast Session Memory
 
-`EventsCompactionConfig` summarizes older events every 5 turns so long chats stay cheap.
+Session state is saved to `sessions/{id}.json`. Restart the chat — scratchpad and state come back. Files older than 24 hours are ignored (TTL).
 
 ```bash
 python chat.py
 ```
 
-Send 5+ messages about order `#48213`. Older turns get compacted into a summary.
+Try an order question, quit, run again, then ask about the same order.
