@@ -1,9 +1,12 @@
-# Step 6 — Concurrent Sessions
+# Step 7 — State Persistence Across Turns
 
-One Runner serves many users. Each `user_id` + `session_id` is isolated.
+`DatabaseSessionService` stores sessions in SQLite. Tool results write to state:
+
+- `last_tool_result` — this session only
+- `user:last_order` — every session for this user
 
 ```bash
 python chat.py
 ```
 
-Type `demo` to run User A and User B at the same time with `asyncio.gather`.
+Try: ask about `#48213`, quit, run again, then ask `What was my last order?`

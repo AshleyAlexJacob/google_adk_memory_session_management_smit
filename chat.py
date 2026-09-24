@@ -1,16 +1,17 @@
 """Simple CLI chat for SupportBot. Run: python chat.py
 
 Type `demo` to run two users at once (concurrent sessions).
+Sessions and state survive restart via SQLite.
 """
 
 import asyncio
 
 from dotenv import load_dotenv
 from google.adk.runners import Runner
-from google.adk.sessions import InMemorySessionService
+from google.adk.sessions import DatabaseSessionService
 from google.genai import types
 
-from supportbot.agent import app, load_json, save_json
+from supportbot.agent import DB_URL, app, load_json, save_json
 
 load_dotenv()
 
@@ -61,7 +62,7 @@ async def run_demo(runner, sessions):
 
 
 async def main():
-    sessions = InMemorySessionService()
+    sessions = DatabaseSessionService(db_url=DB_URL)
     await ensure_session(sessions, "usr_882", "s_882")
     runner = Runner(app=app, session_service=sessions)
 
