@@ -1,0 +1,5 @@
+google-adk>=1.8.0
+litellm>=1.84.0
+python-dotenv>=1.0.0
+sqlalchemy[asyncio]>=2.0.0
+aiosqlite>=0.20.0
