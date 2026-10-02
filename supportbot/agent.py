@@ -10,6 +10,7 @@ from pathlib import Path
 from google.adk.agents import LlmAgent, SequentialAgent
 from google.adk.apps import App
 from google.adk.apps.app import EventsCompactionConfig
+from google.adk.events.event import Event
 from google.adk.models.lite_llm import LiteLlm
 
 MODEL = LiteLlm(model="openai/gpt-4o")
@@ -38,26 +39,30 @@ def trim_history(callback_context, llm_request):
 
 
 def save_json(session):
-    """Write session.state to sessions/{id}.json."""
+    """Write session state and chat history to sessions/{id}.json."""
     SESSIONS_DIR.mkdir(exist_ok=True)
     path = SESSIONS_DIR / f"{session.id}.json"
     data = dict(session.state)
+    data["history"] = [
+        event.model_dump(mode="json", exclude_none=True) for event in session.events
+    ]
     data["saved_at"] = datetime.now().isoformat(timespec="seconds")
     path.write_text(json.dumps(data, indent=2))
 
 
 def load_json(session_id):
-    """Read session state from JSON. Empty if missing or past TTL."""
+    """Read session state and chat history. Empty if missing or past TTL."""
     path = SESSIONS_DIR / f"{session_id}.json"
     if not path.exists():
-        return {}
+        return {}, []
     data = json.loads(path.read_text())
     saved_at = data.pop("saved_at", None)
+    history = data.pop("history", [])
     if saved_at:
         age = datetime.now() - datetime.fromisoformat(saved_at)
         if age > timedelta(hours=TTL_HOURS):
-            return {}
-    return data
+            return {}, []
+    return data, [Event.model_validate(item) for item in history]
 
 
 planner = LlmAgent(

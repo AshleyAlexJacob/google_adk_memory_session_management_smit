@@ -18,12 +18,15 @@ SESSION = "s_882"
 
 async def main():
     sessions = InMemorySessionService()
-    await sessions.create_session(
+    state, history = load_json(SESSION)
+    session = await sessions.create_session(
         app_name=APP,
         user_id=USER,
         session_id=SESSION,
-        state=load_json(SESSION),
+        state=state,
     )
+    for event in history:
+        await sessions.append_event(session, event)
     runner = Runner(app=app, session_service=sessions)
 
     print("SupportBot  |  type quit to exit")
